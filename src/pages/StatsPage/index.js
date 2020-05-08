@@ -2,12 +2,14 @@ import React, {useState,useEffect} from 'react'
 import "./style.css"
 import StatsTable from '../../components/StatsTable';
 import API from "../../utils/API"
+import {Link} from "react-router-dom";
 
 export default function StatsPage() {
     const [playersState,setPlayersState] = useState([]);
     const [filteredPlayersState,setFilteredPlayersState] = useState([]);
     const [sortedBy,setSortedBy] = useState();
     const [playerSearch, setPlayerSearch]= useState("");
+    const [teamSearch, setTeamSearch] = useState("")
     
     useEffect(()=>{
         API.getAllPlayers().then(res=>{
@@ -22,37 +24,6 @@ export default function StatsPage() {
     useEffect(()=>{
         const sortedPlayers = [...playersState];
         switch (sortedBy) {
-            case "name":
-                sortedPlayers.sort(function(a,b){
-                    if(a.name<b.name){
-                        return -1
-                    }else {
-                        return 1;
-                    }
-                   
-                })
-                break;
-            case "team":
-                sortedPlayers.sort(function(a,b){
-                    if(a.team<b.team){
-                        return -1
-                    }else {
-                        return 1;
-                    }
-                   
-                })
-                break;
-        
-                case "at_bats":
-                    sortedPlayers.sort(function(a,b){
-                        if(a.at_bats<b.at_bats){
-                            return -1
-                        }else {
-                            return 1;
-                        }
-                        
-                    })
-                    break;
                 case "hits":
                     sortedPlayers.sort(function(a,b){
                         if((a.singles+a.doubles+a.triples+a.home_runs)<(b.singles+b.doubles+b.triples+b.home_runs)){
@@ -73,17 +44,16 @@ export default function StatsPage() {
                         
                     })
                     break;
-                case "at_bats":
+                
+            default:
                     sortedPlayers.sort(function(a,b){
-                        if(a.at_bats<b.at_bats){
+                        if(a[sortedBy]<b[sortedBy]){
                             return -1
                         }else {
                             return 1;
                         }
                         
                     })
-                    break;
-            default:
                 break;
         }
         console.log(sortedPlayers)
@@ -102,6 +72,18 @@ export default function StatsPage() {
         setFilteredPlayersState(filteredPlayers);
     },[playerSearch,playersState])
 
+    useEffect(()=>{
+        const copyOfPlayers=[...playersState];
+        const filteredPlayers = copyOfPlayers.filter(player=>{
+            if(player.team.includes(teamSearch)){
+                return true
+            } else {
+                return false
+            }
+        })
+        setFilteredPlayersState(filteredPlayers);
+    },[teamSearch,playersState])
+
     const sortingClickHandler = colName=>{
         setSortedBy(colName)
     }
@@ -112,7 +94,7 @@ export default function StatsPage() {
         if(name==="playerSearch"){
             setPlayerSearch(value);
         }else if(name==="teamSearch"){
-            //TODO: set team serach
+           setTeamSearch(value)
         }
     }
 
@@ -121,9 +103,11 @@ export default function StatsPage() {
         <div className="StatsPage">
             <form>
                 <input type='text' value ={playerSearch} onChange={handleInputChange} name="playerSearch" placeholder = "player search"/>
-                <input type='text' placeholder = "team search"/>
+                <input type='text' value = {teamSearch} onChange = {handleInputChange} name="teamSearch" placeholder = "team search"/>
             </form>
-             <button>Add a Player</button>
+            <Link to="/add">
+                <button>Add a Player</button>
+             </Link>
                 <StatsTable sorting={sortingClickHandler} players = {filteredPlayersState}/>
         </div>
     )
