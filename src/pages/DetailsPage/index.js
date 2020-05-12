@@ -4,7 +4,7 @@ import {useParams,useHistory} from "react-router-dom"
 import API from "../../utils/API"
 
 
-export default function DetailsPage() {
+export default function DetailsPage(props) {
     const params = useParams();
     const history = useHistory();
     const [playerState,setPlayerState]=useState({});
@@ -13,10 +13,12 @@ export default function DetailsPage() {
         RBIS:0
     })
     
+    
     useEffect(()=>{
         API.getPlayerById(params.id).then(res=>{
             setPlayerState(res.data)
         })
+        
     },[])
 
     const handleDeleteBtnClick = event=>{
@@ -72,7 +74,7 @@ export default function DetailsPage() {
     return (
         <div className="DetailsPage">
             {/* {playerState?<h1>{playerState.name}</h1>:<h1>Loading...</h1>} */}
-            <h1>{playerState.name} <button onClick={handleDeleteBtnClick}>Delete Me!</button></h1>
+    <h1>{playerState.name} {props.currentUser? <button onClick={handleDeleteBtnClick}>Delete Me!</button>:''}</h1>
             <h3>{playerState.team}</h3>
             <h5>Stats</h5>
             <ul>
@@ -85,7 +87,7 @@ export default function DetailsPage() {
                 <li>home runs:{playerState.home_runs}</li>
                 <li>rbis:{playerState.runs_batted_in}</li>
             </ul>
-            <form>
+            {props.currentUser? (<form>
                 <select value={atBatState.result} onChange={handleInputChange} name="result">
                     <option value="none">None</option>
                     <option value="single">Single</option>
@@ -95,7 +97,7 @@ export default function DetailsPage() {
                 </select>
                 <input type="text" value={atBatState.RBIS} onChange = {handleInputChange} name= "RBIS" placeholder="RBIs"/>
                 <button onClick={handleFormSubmit}>Add at bat!</button>
-            </form>
+            </form>):''}
         </div>
     )
 }

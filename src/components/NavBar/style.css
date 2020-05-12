@@ -1,0 +1,6 @@
+.NavBar {
+    display:flex;
+    justify-content: space-between;
+    background:violet;
+    min-height: 10vh;
+}
